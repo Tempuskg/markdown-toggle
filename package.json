@@ -2,7 +2,7 @@
   "name": "markdown-toggle-preview",
   "displayName": "Markdown Toggle Preview",
   "description": "Toggle between markdown source and preview with a button",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "DarrenJMcLeod",
   "repository": {
     "type": "git",
