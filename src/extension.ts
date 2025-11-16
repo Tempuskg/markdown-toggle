@@ -2,6 +2,11 @@ import * as vscode from 'vscode';
 
 // Track view state per document (in-memory). Could be persisted with globalState if desired.
 const viewStates: Map<string, 'source' | 'preview'> = new Map();
+let lastToggledUri: vscode.Uri | undefined;
+
+export function getViewState(uri: vscode.Uri): 'source' | 'preview' | undefined {
+  return viewStates.get(uri.toString());
+}
 
 export function activate(context: vscode.ExtensionContext): void {
   const toggleCommand = vscode.commands.registerCommand('markdownToggle.toggleView', async () => {
@@ -23,12 +28,20 @@ export function activate(context: vscode.ExtensionContext): void {
 
 async function toggleMarkdownView(): Promise<void> {
   const editor = vscode.window.activeTextEditor;
-  if (!editor || editor.document.languageId !== 'markdown') {
-    vscode.window.showWarningMessage('Current file is not markdown.');
+  let docUri: vscode.Uri | undefined;
+
+  if (editor && editor.document.languageId === 'markdown') {
+    docUri = editor.document.uri;
+  } else if (!editor && lastToggledUri) {
+    // We are likely in preview mode; use last toggled markdown document
+    docUri = lastToggledUri;
+  }
+
+  if (!docUri) {
+    vscode.window.showWarningMessage('No markdown document to toggle.');
     return;
   }
 
-  const docUri = editor.document.uri;
   const key = docUri.toString();
   const configDefault = vscode.workspace.getConfiguration().get<string>('markdownToggle.defaultView', 'source');
   const currentState = viewStates.get(key) || configDefault;
@@ -37,9 +50,13 @@ async function toggleMarkdownView(): Promise<void> {
     if (currentState === 'source') {
       await vscode.commands.executeCommand('markdown.showPreview', docUri);
       viewStates.set(key, 'preview');
+      lastToggledUri = docUri;
     } else {
-      await vscode.window.showTextDocument(editor.document, editor.viewColumn);
+      // editor might be undefined (in preview); reopen source document
+      const textDoc = await vscode.workspace.openTextDocument(docUri);
+      await vscode.window.showTextDocument(textDoc, editor?.viewColumn);
       viewStates.set(key, 'source');
+      lastToggledUri = docUri;
     }
   } catch (err) {
     vscode.window.showErrorMessage(`Failed to toggle markdown view: ${err}`);
