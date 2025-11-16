@@ -77,7 +77,7 @@ Keyboard junkie? Add a custom keybinding:
 
 ## Why I Built This
 
-As a developer who reads a lot of documentation and technical content, a lot of times I just wanted to view a markdown file. It irked me that there was no button to preview, the default behaviour of the existing preview button was split screen view which I don't like if I just want to read the markdown file. You had to rememeber hold `alt` key to achieve what I wanted. Also I wanted my preview state to persist across sessions. This extension scratches that itch—and I hope it helps you too.
+As a developer who reads a lot of documentation and technical content, a lot of times I just wanted to view a markdown file. It irked me that there was no button to preview, the default behaviour of the existing preview button was split screen view which I don't like if I just want to read the markdown file. You had to rememeber to hold `alt` key to achieve what I wanted. Also I wanted my preview state to persist across sessions. This extension scratches that itch—and I hope it helps you too.
 
 ## What's Next?
 
