@@ -17,6 +17,43 @@ function storeState(key: string, state: 'source' | 'preview'): void {
   }
 }
 
+async function getAllStoredKeys(): Promise<string[]> {
+  if (!extCtx) return [];
+  const keys = extCtx.globalState.keys();
+  return keys.filter(k => k.startsWith('markdownToggle.viewMode.'));
+}
+
+async function cleanupStaleEntries(): Promise<number> {
+  if (!extCtx) return 0;
+  const storedKeys = await getAllStoredKeys();
+  let cleanedCount = 0;
+
+  for (const fullKey of storedKeys) {
+    const uriString = fullKey.replace('markdownToggle.viewMode.', '');
+    try {
+      const uri = vscode.Uri.parse(uriString);
+      // Check if the file exists (for file:// URIs)
+      if (uri.scheme === 'file') {
+        try {
+          await vscode.workspace.fs.stat(uri);
+        } catch {
+          // File doesn't exist, remove stale entry
+          await extCtx.globalState.update(fullKey, undefined);
+          viewStates.delete(uriString);
+          cleanedCount++;
+        }
+      }
+      // For non-file URIs (untitled, etc.), keep them
+    } catch {
+      // Invalid URI, remove stale entry
+      await extCtx.globalState.update(fullKey, undefined);
+      cleanedCount++;
+    }
+  }
+
+  return cleanedCount;
+}
+
 export function getViewState(uri: vscode.Uri): 'source' | 'preview' | undefined {
   const key = uri.toString();
   return viewStates.get(key) || getStoredState(key);
@@ -24,10 +61,22 @@ export function getViewState(uri: vscode.Uri): 'source' | 'preview' | undefined 
 
 export function activate(context: vscode.ExtensionContext): void {
   extCtx = context;
+  
   const toggleCommand = vscode.commands.registerCommand('markdownToggle.toggleView', async () => {
     await toggleMarkdownView();
   });
   context.subscriptions.push(toggleCommand);
+
+  const cleanupCommand = vscode.commands.registerCommand('markdownToggle.cleanupStaleEntries', async () => {
+    const count = await cleanupStaleEntries();
+    vscode.window.showInformationMessage(`Cleaned up ${count} stale markdown view state(s).`);
+  });
+  context.subscriptions.push(cleanupCommand);
+
+  // Automatic cleanup on activation (runs in background)
+  cleanupStaleEntries().catch(err => {
+    console.error('Failed to cleanup stale entries:', err);
+  });
 
   const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   statusBar.command = 'markdownToggle.toggleView';

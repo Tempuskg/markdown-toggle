@@ -19,6 +19,11 @@
         "title": "Toggle Markdown Preview",
         "icon": "$(eye)",
         "category": "Markdown"
+      },
+      {
+        "command": "markdownToggle.cleanupStaleEntries",
+        "title": "Cleanup Stale View State Entries",
+        "category": "Markdown"
       }
     ],
     "menus": {

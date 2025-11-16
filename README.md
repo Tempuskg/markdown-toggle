@@ -29,7 +29,11 @@ Toggle between a Markdown document's source and the built‑in VS Code preview u
 }
 ```
 
-Persisted state: The last view (source/preview) per markdown document is stored using VS Code's `globalState`. When you reopen a file, the toolbar/status bar reflects this stored mode; toggling resumes from that state.
+**Persisted state:** The last view (source/preview) per markdown document is stored using VS Code's `globalState`. When you reopen a file, the toolbar/status bar reflects this stored mode; toggling resumes from that state.
+
+**Cleanup stale entries:** Over time, state entries for deleted/moved files may accumulate. The extension automatically cleans these up on activation. You can also manually trigger cleanup via the command palette:
+- Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+- Run: `Markdown: Cleanup Stale View State Entries`
 
 ## Development
 ```powershell
