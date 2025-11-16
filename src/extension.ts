@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 const viewStates: Map<string, 'source' | 'preview'> = new Map();
 let lastToggledUri: vscode.Uri | undefined;
 let extCtx: vscode.ExtensionContext | undefined;
+let statusBarItem: vscode.StatusBarItem | undefined;
 
 function getStoredState(key: string): 'source' | 'preview' | undefined {
   if (!extCtx) return undefined;
@@ -78,16 +79,16 @@ export function activate(context: vscode.ExtensionContext): void {
     console.error('Failed to cleanup stale entries:', err);
   });
 
-  const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-  statusBar.command = 'markdownToggle.toggleView';
-  context.subscriptions.push(statusBar);
+  statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+  statusBarItem.command = 'markdownToggle.toggleView';
+  context.subscriptions.push(statusBarItem);
 
   const editorChangeDisposable = vscode.window.onDidChangeActiveTextEditor((editor: vscode.TextEditor | undefined) => {
-    updateUI(editor, statusBar);
+    updateUI(editor, statusBarItem);
   });
   context.subscriptions.push(editorChangeDisposable);
 
-  updateUI(vscode.window.activeTextEditor, statusBar);
+  updateUI(vscode.window.activeTextEditor, statusBarItem);
 }
 
 async function toggleMarkdownView(): Promise<void> {
@@ -115,29 +116,22 @@ async function toggleMarkdownView(): Promise<void> {
       await vscode.commands.executeCommand('markdown.showPreview', docUri);
       storeState(key, 'preview');
       lastToggledUri = docUri;
+      updateUIForUri(docUri, statusBarItem);
     } else {
       // editor might be undefined (in preview); reopen source document
       const textDoc = await vscode.workspace.openTextDocument(docUri);
-      await vscode.window.showTextDocument(textDoc, editor?.viewColumn);
+      const newEditor = await vscode.window.showTextDocument(textDoc, editor?.viewColumn);
       storeState(key, 'source');
       lastToggledUri = docUri;
+      updateUI(newEditor, statusBarItem);
     }
   } catch (err) {
     vscode.window.showErrorMessage(`Failed to toggle markdown view: ${err}`);
   }
-
-  updateUI(vscode.window.activeTextEditor);
 }
 
-function updateUI(editor: vscode.TextEditor | undefined, statusBar?: vscode.StatusBarItem): void {
-  if (!editor || editor.document.languageId !== 'markdown') {
-    if (statusBar) {
-      statusBar.hide();
-    }
-    return;
-  }
-
-  const key = editor.document.uri.toString();
+function updateUIForUri(uri: vscode.Uri, statusBar?: vscode.StatusBarItem): void {
+  const key = uri.toString();
   const configDefault = vscode.workspace.getConfiguration().get<string>('markdownToggle.defaultView', 'source');
   const state = viewStates.get(key) || getStoredState(key) || configDefault;
 
@@ -145,6 +139,29 @@ function updateUI(editor: vscode.TextEditor | undefined, statusBar?: vscode.Stat
     statusBar.text = state === 'source' ? '$(eye) Preview' : '$(code) Source';
     statusBar.tooltip = state === 'source' ? 'Switch to Markdown Preview' : 'Switch to Source';
     statusBar.show();
+  }
+}
+
+function updateUI(editor: vscode.TextEditor | undefined, statusBar?: vscode.StatusBarItem): void {
+  if (editor && editor.document.languageId === 'markdown') {
+    const key = editor.document.uri.toString();
+    // Ensure state reflects being in source view when a markdown editor is active
+    storeState(key, 'source');
+    if (statusBar) {
+      statusBar.text = '$(eye) Preview';
+      statusBar.tooltip = 'Switch to Markdown Preview';
+      statusBar.show();
+    }
+    return;
+  }
+
+  if (!editor && lastToggledUri) {
+    updateUIForUri(lastToggledUri, statusBar);
+    return;
+  }
+
+  if (statusBar) {
+    statusBar.hide();
   }
 }
 

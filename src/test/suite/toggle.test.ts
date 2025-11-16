@@ -34,4 +34,35 @@ describe('Markdown Toggle Preview', () => {
     const state = getViewState(doc.uri);
     expect(state).to.equal('source');
   });
+
+  it('should handle multiple toggle cycles: source -> preview -> source -> preview', async () => {
+    // Ensure we start in source mode
+    let state = getViewState(doc.uri);
+    if (state === 'preview') {
+      await vscode.commands.executeCommand('markdownToggle.toggleView');
+      await delay(800);
+    }
+    
+    // Verify starting state
+    state = getViewState(doc.uri);
+    expect(state).to.equal('source');
+
+    // Toggle to preview
+    await vscode.commands.executeCommand('markdownToggle.toggleView');
+    await delay(800);
+    state = getViewState(doc.uri);
+    expect(state).to.equal('preview');
+
+    // Toggle back to source
+    await vscode.commands.executeCommand('markdownToggle.toggleView');
+    await delay(800);
+    state = getViewState(doc.uri);
+    expect(state).to.equal('source');
+
+    // Toggle to preview again
+    await vscode.commands.executeCommand('markdownToggle.toggleView');
+    await delay(800);
+    state = getViewState(doc.uri);
+    expect(state).to.equal('preview');
+  });
 });
