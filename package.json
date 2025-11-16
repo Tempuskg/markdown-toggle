@@ -1,0 +1,56 @@
+{
+  "name": "markdown-toggle-preview",
+  "displayName": "Markdown Toggle Preview",
+  "description": "Toggle between markdown source and preview with a button",
+  "version": "0.0.1",
+  "publisher": "your-publisher-id",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "markdownToggle.toggleView",
+        "title": "Toggle Markdown Preview",
+        "icon": "$(eye)",
+        "category": "Markdown"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "when": "editorLangId == markdown",
+          "command": "markdownToggle.toggleView",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Markdown Toggle Preview",
+      "properties": {
+        "markdownToggle.defaultView": {
+          "type": "string",
+          "enum": ["source", "preview"],
+          "default": "source",
+          "description": "Default view when opening markdown files"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p .",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.75.0",
+    "typescript": "^5.3.3",
+    "vsce": "^2.15.0"
+  }
+}
