@@ -7,6 +7,7 @@ Toggle between a Markdown document's source and the built‑in VS Code preview u
 - Status bar indicator showing current mode (Preview / Source)
 - Remembers per‑document state during a session
 - Configurable default view (`markdownToggle.defaultView`)
+ - Persisted view state across reloads (stored per document URI)
 
 ## Usage
 1. Open any `.md` file.
@@ -28,6 +29,8 @@ Toggle between a Markdown document's source and the built‑in VS Code preview u
 }
 ```
 
+Persisted state: The last view (source/preview) per markdown document is stored using VS Code's `globalState`. When you reopen a file, the toolbar/status bar reflects this stored mode; toggling resumes from that state.
+
 ## Development
 ```powershell
 cd e:\markdown-toggle\markdown-toggle
@@ -35,6 +38,18 @@ npm install
 npm run compile
 # Press F5 in VS Code to launch Extension Development Host
 ```
+
+## Testing
+```powershell
+# Run the full test suite (compiles then launches VS Code test runner)
+npm test
+```
+This runs `npm run compile` and then executes `dist/test/runTest.js` using `@vscode/test-electron`, which spins up an Extension Development Host and runs Mocha tests from `dist/test/suite/**/*.test.js`.
+
+Tips:
+- Fast iteration: keep a terminal running `npm run watch` in one pane, then re-run `npm test` after changes.
+- Debugging: set breakpoints in the TypeScript files; use the built-in "Run Extension" launch config (F5). Once the host opens, use "Developer: Toggle Developer Tools" for console output.
+- Single test focus: temporarily add `.only` to a `describe` or `it` block in the test file.
 
 ## Packaging / Publishing
 ```powershell
