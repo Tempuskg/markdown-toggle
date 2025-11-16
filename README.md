@@ -6,8 +6,8 @@ If you work with Markdown files in Visual Studio Code, you've probably found you
 
 VS Code has excellent built-in Markdown preview support, but switching between source and preview requires either:
 - Using the command palette (`Ctrl+Shift+P` → "Markdown: Open Preview")
-- Clicking the small preview icon in the top right while remembering to hold down the `alt` key
-- CLicking the split screen view which then shows both at the same time but what if you just want to view the preview.
+- Clicking the preview icon in the top right which then shows both preview and source at the same time
+- Clicking the preview icon in the top right while remembering to hold down the `alt` key
 
 While these methods work, they don't provide a clear, persistent visual indicator of which mode you're in, and the preview state doesn't persist across sessions. For documentation writers, technical bloggers, and anyone working extensively with Markdown, this can become tedious.
 
@@ -77,11 +77,11 @@ Keyboard junkie? Add a custom keybinding:
 
 ## Why I Built This
 
-As a developer who writes a lot of documentation and technical content, a lot of times I just wanted to view a markdown file. It irked me that there was no button to preview, the default behaviour of the existing preview button was split screen view which I don't like if I just want to read the markdown file. You had to rememeber hold `alt` key to achieve what I wanted. Also I wanted my preview state to persist across sessions. This extension scratches that itch—and I hope it helps you too.
+As a developer who reads a lot of documentation and technical content, a lot of times I just wanted to view a markdown file. It irked me that there was no button to preview, the default behaviour of the existing preview button was split screen view which I don't like if I just want to read the markdown file. You had to rememeber hold `alt` key to achieve what I wanted. Also I wanted my preview state to persist across sessions. This extension scratches that itch—and I hope it helps you too.
 
 ## What's Next?
 
-This is version 0.0.1, and I currently don't have any further plans.
+I currently don't have any further plans.
 
 If you have feature requests or find any issues, please open an issue on the [GitHub repository](https://github.com/Tempuskg/markdown-toggle).
 
